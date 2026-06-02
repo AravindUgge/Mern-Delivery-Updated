@@ -6,7 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/lib/auth";
 
 // Set API base URL to the backend server
-const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 setBaseUrl(API_BASE_URL);
 import Header from "@/components/header";
 import Footer from "@/components/footer";
