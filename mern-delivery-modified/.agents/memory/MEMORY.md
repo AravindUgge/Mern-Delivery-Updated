@@ -1,0 +1,5 @@
+- [TQ v5 + Orval query options](tq-orval-querykey.md) — TanStack Query v5 requires `queryKey` in UseQueryOptions; always pass getXxxQueryKey() helper alongside `enabled`.
+- [Drizzle + Neon numeric strings](drizzle-numeric.md) — Drizzle returns numeric columns as strings from Neon; use parseFloat() in all API route response formatters.
+- [Orval codegen barrel fix](orval-codegen.md) — After orval runs, lib/api-zod/src/index.ts must be overwritten with barrel export; baked into codegen npm script, do NOT revert.
+- [Cart JSONB upsert pattern](cart-jsonb.md) — Cart stored as single row per user with JSONB items array; upserted via onConflictDoUpdate.
+- [OrderStatusUpdateStatus enum](order-status-enum.md) — Does NOT include "ready". Valid: pending, confirmed, preparing, out_for_delivery, delivered, cancelled.
