@@ -500,8 +500,10 @@ export default function DashboardPage() {
     { query: { queryKey: getListRestaurantsQueryKey({ limit: 50 }), enabled: isAuthenticated } },
   );
 
-  const ownedRestaurant = myRestaurants?.restaurants?.find((r) => r.ownerId === user?.id) ?? myRestaurants?.restaurants?.[0];
-  const restaurantId = ownedRestaurant?.id ?? "";
+  const ownedRestaurants = myRestaurants?.restaurants?.filter((r) => r.ownerId === user?.id) ?? [];
+  const [selectedRestaurantId, setSelectedRestaurantId] = useState<string>("");
+
+  const restaurantId = selectedRestaurantId || ownedRestaurants[0]?.id || "";
 
   const ordersParams = { restaurantId, status: statusFilter !== "all" ? statusFilter : undefined };
   const ordersQueryKey = getListOrdersQueryKey(ordersParams);
@@ -531,7 +533,19 @@ export default function DashboardPage() {
               <BarChart3 className="h-6 w-6 text-orange-500" />
               Restaurant Dashboard
             </h1>
-            {ownedRestaurant && <p className="text-gray-500 text-sm mt-0.5">{ownedRestaurant.name}</p>}
+            {ownedRestaurants.length === 1 && <p className="text-gray-500 text-sm mt-0.5">{ownedRestaurants[0]?.name}</p>}
+            {ownedRestaurants.length > 1 && (
+              <Select value={selectedRestaurantId || ownedRestaurants[0]?.id} onValueChange={setSelectedRestaurantId}>
+                <SelectTrigger className="w-64 mt-1 bg-white border-orange-200">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-white border border-gray-200 shadow-lg">
+                  {ownedRestaurants.map((r) => (
+                    <SelectItem key={r.id} value={r.id}>{r.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
           </div>
           <div className="flex items-center gap-1.5 text-xs text-green-600 bg-green-50 px-2.5 py-1 rounded-full border border-green-200">
             <Radio className="h-3.5 w-3.5 animate-pulse" />

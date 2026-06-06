@@ -11,6 +11,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/lib/auth";
 import { useGetCart, getGetCartQueryKey } from "@workspace/api-client-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function Header() {
   const { user, isAuthenticated, logout } = useAuth();
@@ -20,10 +21,20 @@ export default function Header() {
   const cartCount = cart?.items?.reduce((sum: number, i: { quantity: number }) => sum + i.quantity, 0) ?? 0;
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60 shadow-sm">
+    <motion.header
+      className="sticky top-0 z-50 w-full border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60 shadow-sm"
+      initial={{ y: -60 }}
+      animate={{ y: 0 }}
+      transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
+    >
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
         <Link href="/" className="flex items-center gap-2 font-bold text-xl text-orange-500 hover:opacity-90">
-          <UtensilsCrossed className="h-6 w-6" />
+          <motion.div
+            whileHover={{ rotate: 15 }}
+            transition={{ type: "spring", stiffness: 400, damping: 10 }}
+          >
+            <UtensilsCrossed className="h-6 w-6" />
+          </motion.div>
           QuickBite
         </Link>
 
@@ -38,16 +49,27 @@ export default function Header() {
                 <Link href="/wishlist">Wishlist</Link>
               </Button>
 
-              <Button variant="ghost" size="icon" className="relative" asChild>
-                <Link href="/cart">
-                  <ShoppingCart className="h-5 w-5" />
-                  {cartCount > 0 && (
-                    <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs bg-orange-500">
-                      {cartCount}
-                    </Badge>
-                  )}
-                </Link>
-              </Button>
+              <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
+                <Button variant="ghost" size="icon" className="relative" asChild>
+                  <Link href="/cart">
+                    <ShoppingCart className="h-5 w-5" />
+                    <AnimatePresence>
+                      {cartCount > 0 && (
+                        <motion.div
+                          initial={{ scale: 0 }}
+                          animate={{ scale: 1 }}
+                          exit={{ scale: 0 }}
+                          transition={{ type: "spring", stiffness: 500, damping: 20 }}
+                        >
+                          <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs bg-orange-500">
+                            {cartCount}
+                          </Badge>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </Link>
+                </Button>
+              </motion.div>
 
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -96,13 +118,15 @@ export default function Header() {
               <Button variant="ghost" size="sm" asChild>
                 <Link href="/login">Sign In</Link>
               </Button>
-              <Button size="sm" className="bg-orange-500 hover:bg-orange-600" asChild>
-                <Link href="/register">Sign Up</Link>
-              </Button>
+              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                <Button size="sm" className="bg-orange-500 hover:bg-orange-600" asChild>
+                  <Link href="/register">Sign Up</Link>
+                </Button>
+              </motion.div>
             </>
           )}
         </nav>
       </div>
-    </header>
+    </motion.header>
   );
 }

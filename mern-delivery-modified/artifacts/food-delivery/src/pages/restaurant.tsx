@@ -19,6 +19,7 @@ import {
 import type { MenuItem, Review } from "@workspace/api-client-react";
 import { useAuth } from "@/lib/auth";
 import { useQueryClient } from "@tanstack/react-query";
+import { motion } from "framer-motion";
 
 const ITEM_CARD_COLORS = [
   { border: "border-l-orange-400", bg: "bg-orange-50" },
@@ -75,79 +76,87 @@ function MenuItemCard({
   }
 
   return (
-    <div className={`flex gap-4 p-4 border-l-4 ${colors.border} ${colors.bg} rounded-xl hover:shadow-sm transition-shadow`}>
-      <div className="flex-1 min-w-0">
-        <div className="flex items-start justify-between gap-2">
-          <div className="min-w-0">
-            <div className="flex items-center gap-1.5 flex-wrap">
-              <h4 className="font-semibold text-gray-900">{item.name}</h4>
-              {item.isVegetarian && (
-                <span className="flex items-center gap-0.5 text-xs bg-green-100 text-green-700 px-1.5 py-0.5 rounded-full font-medium">
-                  <Leaf className="h-3 w-3" /> Veg
-                </span>
+    <motion.div
+      initial={{ opacity: 0, x: -20 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ duration: 0.35, delay: index * 0.05 }}
+    >
+      <div className={`flex gap-4 p-4 border-l-4 ${colors.border} ${colors.bg} rounded-xl hover:shadow-sm transition-shadow`}>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-start justify-between gap-2">
+            <div className="min-w-0">
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <h4 className="font-semibold text-gray-900">{item.name}</h4>
+                {item.isVegetarian && (
+                  <span className="flex items-center gap-0.5 text-xs bg-green-100 text-green-700 px-1.5 py-0.5 rounded-full font-medium">
+                    <Leaf className="h-3 w-3" /> Veg
+                  </span>
+                )}
+                {item.isPopular && (
+                  <span className="flex items-center gap-0.5 text-xs bg-orange-100 text-orange-700 px-1.5 py-0.5 rounded-full font-medium">
+                    <Flame className="h-3 w-3" /> Popular
+                  </span>
+                )}
+              </div>
+              {item.description && (
+                <p className="text-sm text-gray-500 mt-0.5 line-clamp-2">{item.description}</p>
               )}
-              {item.isPopular && (
-                <span className="flex items-center gap-0.5 text-xs bg-orange-100 text-orange-700 px-1.5 py-0.5 rounded-full font-medium">
-                  <Flame className="h-3 w-3" /> Popular
-                </span>
-              )}
+              <div className="flex items-center gap-3 mt-2">
+                <span className="font-bold text-gray-900 text-base">${item.price.toFixed(2)}</span>
+                {item.calories && (
+                  <span className="text-xs text-gray-400 bg-white px-2 py-0.5 rounded-full border">{item.calories} cal</span>
+                )}
+              </div>
             </div>
-            {item.description && (
-              <p className="text-sm text-gray-500 mt-0.5 line-clamp-2">{item.description}</p>
+            {item.image && (
+              <img src={item.image} alt={item.name} className="h-20 w-20 rounded-xl object-cover shrink-0 shadow-sm" />
             )}
-            <div className="flex items-center gap-3 mt-2">
-              <span className="font-bold text-gray-900 text-base">${item.price.toFixed(2)}</span>
-              {item.calories && (
-                <span className="text-xs text-gray-400 bg-white px-2 py-0.5 rounded-full border">{item.calories} cal</span>
-              )}
-            </div>
           </div>
-          {item.image && (
-            <img src={item.image} alt={item.name} className="h-20 w-20 rounded-xl object-cover shrink-0 shadow-sm" />
+          {item.isAvailable ? (
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 mt-3">
+              <div className="flex items-center bg-white border rounded-xl overflow-hidden shadow-sm">
+                <button onClick={() => setQty((q) => Math.max(1, q - 1))} className="px-3 py-1.5 hover:bg-gray-50 transition-colors text-gray-600">
+                  <Minus className="h-3.5 w-3.5" />
+                </button>
+                <span className="px-3 text-sm font-bold">{qty}</span>
+                <button onClick={() => setQty((q) => q + 1)} className="px-3 py-1.5 hover:bg-gray-50 transition-colors text-gray-600">
+                  <Plus className="h-3.5 w-3.5" />
+                </button>
+              </div>
+              <div className="flex items-center gap-2">
+                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                  <Button size="sm" className="bg-orange-500 hover:bg-orange-600 rounded-xl font-semibold" onClick={handleAdd} disabled={isPending}>
+                    Add to Cart
+                  </Button>
+                </motion.div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="rounded-xl"
+                  onClick={() => {
+                    if (!isAuthenticated) { navigate("/login"); return; }
+                    onToggleWishlist({
+                      id: item.id,
+                      name: item.name,
+                      description: item.description ?? "",
+                      price: item.price,
+                      image: item.image ?? undefined,
+                      restaurantId,
+                      restaurantName,
+                    });
+                  }}
+                >
+                  {isSaved ? <HeartOff className="h-4 w-4 mr-2 text-red-500" /> : <Heart className="h-4 w-4 mr-2 text-orange-500" />}
+                  {isSaved ? "Saved" : "Wishlist"}
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <span className="mt-3 inline-block text-xs text-gray-400 bg-gray-100 px-3 py-1 rounded-full">Unavailable</span>
           )}
         </div>
-        {item.isAvailable ? (
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 mt-3">
-            <div className="flex items-center bg-white border rounded-xl overflow-hidden shadow-sm">
-              <button onClick={() => setQty((q) => Math.max(1, q - 1))} className="px-3 py-1.5 hover:bg-gray-50 transition-colors text-gray-600">
-                <Minus className="h-3.5 w-3.5" />
-              </button>
-              <span className="px-3 text-sm font-bold">{qty}</span>
-              <button onClick={() => setQty((q) => q + 1)} className="px-3 py-1.5 hover:bg-gray-50 transition-colors text-gray-600">
-                <Plus className="h-3.5 w-3.5" />
-              </button>
-            </div>
-            <div className="flex items-center gap-2">
-              <Button size="sm" className="bg-orange-500 hover:bg-orange-600 rounded-xl font-semibold" onClick={handleAdd} disabled={isPending}>
-                Add to Cart
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                className="rounded-xl"
-                onClick={() => {
-                  if (!isAuthenticated) { navigate("/login"); return; }
-                  onToggleWishlist({
-                    id: item.id,
-                    name: item.name,
-                    description: item.description ?? "",
-                    price: item.price,
-                    image: item.image ?? undefined,
-                    restaurantId,
-                    restaurantName,
-                  });
-                }}
-              >
-                {isSaved ? <HeartOff className="h-4 w-4 mr-2 text-red-500" /> : <Heart className="h-4 w-4 mr-2 text-orange-500" />}
-                {isSaved ? "Saved" : "Wishlist"}
-              </Button>
-            </div>
-          </div>
-        ) : (
-          <span className="mt-3 inline-block text-xs text-gray-400 bg-gray-100 px-3 py-1 rounded-full">Unavailable</span>
-        )}
       </div>
-    </div>
+    </motion.div>
   );
 }
 
@@ -237,7 +246,12 @@ export default function RestaurantPage() {
       </Button>
 
       {/* Hero */}
-      <div className="relative h-56 rounded-2xl overflow-hidden mb-6 shadow-md">
+      <motion.div
+        className="relative h-56 rounded-2xl overflow-hidden mb-6 shadow-md"
+        initial={{ opacity: 0, scale: 0.98 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5 }}
+      >
         {restaurant.coverImage || restaurant.image ? (
           <img src={(restaurant.coverImage ?? restaurant.image)!} alt={restaurant.name} className="w-full h-full object-cover" />
         ) : (
@@ -255,39 +269,44 @@ export default function RestaurantPage() {
           <h1 className="text-2xl font-bold">{restaurant.name}</h1>
           <p className="text-white/80 text-sm">{restaurant.cuisine}</p>
         </div>
-      </div>
+      </motion.div>
 
       {/* Info bar */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
-        <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-3 flex items-center gap-2">
-          <Star className="h-4 w-4 fill-yellow-400 text-yellow-400 shrink-0" />
-          <div>
-            <p className="text-xs text-yellow-600">Rating</p>
-            <p className="font-bold text-yellow-800">{restaurant.rating.toFixed(1)} <span className="font-normal text-xs">({restaurant.reviewCount ?? 0})</span></p>
-          </div>
-        </div>
-        <div className="bg-blue-50 border border-blue-200 rounded-xl p-3 flex items-center gap-2">
-          <Clock className="h-4 w-4 text-blue-500 shrink-0" />
-          <div>
-            <p className="text-xs text-blue-600">Delivery</p>
-            <p className="font-bold text-blue-800">{restaurant.deliveryTime} min</p>
-          </div>
-        </div>
-        <div className="bg-green-50 border border-green-200 rounded-xl p-3 flex items-center gap-2">
-          <Bike className="h-4 w-4 text-green-500 shrink-0" />
-          <div>
-            <p className="text-xs text-green-600">Delivery fee</p>
-            <p className="font-bold text-green-800">{restaurant.deliveryFee === 0 ? "Free!" : `$${restaurant.deliveryFee.toFixed(2)}`}</p>
-          </div>
-        </div>
+        {[
+          { bg: "bg-yellow-50", border: "border-yellow-200", iconColor: "text-yellow-400", textColor: "text-yellow-600", textColor2: "text-yellow-800", label: "Rating", value: `${restaurant.rating.toFixed(1)} (${restaurant.reviewCount ?? 0})`, icon: <Star className="h-4 w-4 fill-yellow-400 text-yellow-400 shrink-0" /> },
+          { bg: "bg-blue-50", border: "border-blue-200", iconColor: "text-blue-500", textColor: "text-blue-600", textColor2: "text-blue-800", label: "Delivery", value: `${restaurant.deliveryTime} min`, icon: <Clock className="h-4 w-4 text-blue-500 shrink-0" /> },
+          { bg: "bg-green-50", border: "border-green-200", iconColor: "text-green-500", textColor: "text-green-600", textColor2: "text-green-800", label: "Delivery fee", value: restaurant.deliveryFee === 0 ? "Free!" : `$${restaurant.deliveryFee.toFixed(2)}`, icon: <Bike className="h-4 w-4 text-green-500 shrink-0" /> },
+        ].map((item, i) => (
+          <motion.div
+            key={item.label}
+            className={`${item.bg} border ${item.border} rounded-xl p-3 flex items-center gap-2`}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, delay: 0.2 + i * 0.08 }}
+            whileHover={{ scale: 1.03 }}
+          >
+            {item.icon}
+            <div>
+              <p className={`text-xs ${item.textColor}`}>{item.label}</p>
+              <p className={`font-bold ${item.textColor2}`}>{item.value}</p>
+            </div>
+          </motion.div>
+        ))}
         {restaurant.minOrder !== undefined && restaurant.minOrder > 0 && (
-          <div className="bg-purple-50 border border-purple-200 rounded-xl p-3 flex items-center gap-2">
+          <motion.div
+            className="bg-purple-50 border border-purple-200 rounded-xl p-3 flex items-center gap-2"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, delay: 0.44 }}
+            whileHover={{ scale: 1.03 }}
+          >
             <span className="text-purple-500 shrink-0 text-base">💳</span>
             <div>
               <p className="text-xs text-purple-600">Min. order</p>
               <p className="font-bold text-purple-800">${restaurant.minOrder.toFixed(2)}</p>
             </div>
-          </div>
+          </motion.div>
         )}
       </div>
 

@@ -5,11 +5,13 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useListOrders, getListOrdersQueryKey } from "@workspace/api-client-react";
 import type { Order } from "@workspace/api-client-react";
 import { useAuth } from "@/lib/auth";
+import { motion } from "framer-motion";
 
 const STATUS_STYLES: Record<string, { bg: string; text: string; label: string; dot: string }> = {
   pending:          { bg: "bg-yellow-400",  text: "text-yellow-900", label: "Pending",          dot: "bg-yellow-400" },
   confirmed:        { bg: "bg-blue-500",    text: "text-white",      label: "Confirmed",         dot: "bg-blue-500" },
   preparing:        { bg: "bg-indigo-500",  text: "text-white",      label: "Preparing",         dot: "bg-indigo-500" },
+  ready:            { bg: "bg-sky-500",     text: "text-white",      label: "Ready",             dot: "bg-sky-500" },
   out_for_delivery: { bg: "bg-orange-500",  text: "text-white",      label: "Out for Delivery",  dot: "bg-orange-500" },
   delivered:        { bg: "bg-green-500",   text: "text-white",      label: "Delivered",         dot: "bg-green-500" },
   cancelled:        { bg: "bg-red-500",     text: "text-white",      label: "Cancelled",         dot: "bg-red-500" },
@@ -33,9 +35,12 @@ function OrderCard({ order, index }: { order: Order; index: number }) {
 
   return (
     <Link href={`/orders/${order.id}`}>
-      <div
-        className={`animate-fade-up flex items-start gap-4 p-4 border-l-4 ${accent} rounded-xl bg-white shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 cursor-pointer`}
-        style={{ animationDelay: `${index * 70}ms` }}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, delay: index * 0.07 }}
+        whileHover={{ scale: 1.01, y: -2 }}
+        className={`flex items-start gap-4 p-4 border-l-4 ${accent} rounded-xl bg-white shadow-sm hover:shadow-md transition-shadow cursor-pointer`}
       >
         <div className="flex-1 min-w-0">
           <p className="font-semibold text-gray-900">{order.restaurantName}</p>
@@ -57,7 +62,7 @@ function OrderCard({ order, index }: { order: Order; index: number }) {
           <p className="font-bold text-gray-900">${(order.total as number).toFixed(2)}</p>
           <ChevronRight className="h-4 w-4 text-gray-400 group-hover:translate-x-1 transition-transform" />
         </div>
-      </div>
+      </motion.div>
     </Link>
   );
 }

@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { eq, and, desc, count } from "drizzle-orm";
+import { eq, and, desc, count, inArray } from "drizzle-orm";
 import { db, orders, carts, restaurants, users } from "@workspace/db";
 import { requireAuth } from "../lib/auth";
 import {
@@ -61,19 +61,17 @@ router.get("/orders", requireAuth, async (req, res): Promise<void> => {
       }
       conditions.push(eq(orders.restaurantId, restaurantId));
     } else {
-      // No restaurantId provided — find the owner's restaurant automatically
-      const [ownedRestaurant] = await db
+      // No restaurantId — return orders from ALL restaurants owned by this user
+      const ownedRestaurants = await db
         .select({ id: restaurants.id })
         .from(restaurants)
-        .where(eq(restaurants.ownerId, req.user!.userId))
-        .limit(1);
-      if (ownedRestaurant) {
-        conditions.push(eq(orders.restaurantId, ownedRestaurant.id));
-      } else {
-        // No restaurant linked, return empty
+        .where(eq(restaurants.ownerId, req.user!.userId));
+      if (ownedRestaurants.length === 0) {
         res.json({ orders: [], total: 0, page: Number(page), limit: Number(limit) });
         return;
       }
+      const ownedIds = ownedRestaurants.map((r) => r.id);
+      conditions.push(inArray(orders.restaurantId, ownedIds));
     }
   } else if (req.user!.role === "admin") {
     // Admins can filter by restaurantId or see all

@@ -25,12 +25,30 @@ app.use(
     },
   }),
 );
+app.use(cors({
+  origin: (origin, callback) => {
+    const allowedOrigins = [
+      process.env["FRONTEND_URL"],
+      "http://localhost:3000",
+      "http://localhost:5173",
+      "http://localhost:5000",
+    ].filter(Boolean) as string[];
 
-app.use(cors());
+    if (process.env["VERCEL_URL"]) {
+      allowedOrigins.push(`https://${process.env["VERCEL_URL"]}`);
+    }
+
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  credentials: true,
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// ADD THIS LINE 👇
 app.get("/", (req, res) => {
   res.json({ status: "ok", message: "API is running!" });
 });

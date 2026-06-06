@@ -258,6 +258,8 @@ export const OrderStatus = {
 export interface Order {
   id: string;
   userId: string;
+  /** @nullable */
+  customerName?: string | null;
   restaurantId: string;
   restaurantName: string;
   items: OrderItem[];

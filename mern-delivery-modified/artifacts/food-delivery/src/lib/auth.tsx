@@ -11,6 +11,8 @@ import type { User } from "@workspace/api-client-react";
 
 const TOKEN_KEY = "qb_token";
 
+setAuthTokenGetter(() => localStorage.getItem(TOKEN_KEY));
+
 interface AuthContextValue {
   token: string | null;
   user: User | null;
@@ -28,10 +30,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.getItem(TOKEN_KEY),
   );
   const [user, setUser] = useState<User | null>(null);
-
-  useEffect(() => {
-    setAuthTokenGetter(() => localStorage.getItem(TOKEN_KEY));
-  }, []);
 
   const { data: meData, isLoading } = useGetMe({
     query: { queryKey: getGetMeQueryKey(), enabled: !!token, retry: false },
