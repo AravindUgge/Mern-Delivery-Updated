@@ -29,6 +29,7 @@ app.use(cors({
   origin: (origin, callback) => {
     const allowedOrigins = [
       process.env["FRONTEND_URL"],
+      "https://mern-delivery-updated.vercel.app",
       "http://localhost:3000",
       "http://localhost:5173",
       "http://localhost:5000",
