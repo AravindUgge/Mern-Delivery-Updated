@@ -4,7 +4,7 @@ services:
     runtime: node
     plan: free
     buildCommand: |
-      corepack enable
+      npm install -g pnpm
       pnpm install
       pnpm --filter @workspace/api-server build
     startCommand: node --enable-source-maps ./artifacts/api-server/dist/index.mjs
