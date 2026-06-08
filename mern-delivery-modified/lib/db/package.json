@@ -14,6 +14,7 @@
     "seed-orders": "node ./seed-orders.js"
   },
   "dependencies": {
+    "bcryptjs": "^3.0.3",
     "drizzle-orm": "catalog:",
     "drizzle-zod": "^0.8.3",
     "pg": "^8.20.0",

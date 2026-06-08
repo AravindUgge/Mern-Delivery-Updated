@@ -1,4 +1,4 @@
-const API_BASE = "http://localhost:3001";
+const API_BASE = "http://localhost:5000";
 
 async function getAuthToken(email, password) {
   const res = await fetch(`${API_BASE}/api/auth/login`, {
